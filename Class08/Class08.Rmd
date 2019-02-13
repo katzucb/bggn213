@@ -1,0 +1,221 @@
+---
+title: "Class08"
+author: "Lydia Hernandez"
+date: "2/6/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+tmp <- c(rnorm(30,-3), rnorm(30,3))
+x <- cbind(x=tmp, y=rev(tmp))
+plot(x)
+```
+```{r}
+km <- kmeans(x, center = 2, nstart = 20)
+```
+
+Size of clusters
+```{r}
+km$size
+```
+
+```{r}
+km$cluster
+```
+
+```{r}
+# First we need to calculate point (dis)similarity
+# as the Euclidean distance between observations
+dist_matrix <- dist(x)
+# The hclust() function returns a hierarchical
+# clustering model
+hc <- hclust(d = dist_matrix)
+# the print method is not so useful here
+hc 
+```
+
+```{r}
+plot(hc)
+abline(h=6, col="red")
+grp2 <- cutree(hc, h=6)
+```
+
+```{r}
+plot(x, col=grp2)
+```
+
+```{r}
+plot(hc)
+abline(h=2.5, col="blue")
+grp6 <- cutree(hc, h=2.5)
+table(grp6)
+```
+
+We can also use k= groups as an argument to cutree
+
+```{r}
+cutree(hc, k=3)
+```
+
+### Using different Linkage methods in R
+
+```{r}
+d <- dist_matrix
+
+# Using different hierarchical clustering methods
+hc.complete <- hclust(d, method="complete")
+plot(hc.complete)
+
+hc.average <- hclust(d, method="average")
+plot(hc.average)
+
+hc.single <- hclust(d, method="single")
+plot(hc.single)
+```
+
+Made up overlapping data - a bit more real life like
+
+```{r}
+# Step 1. Generate some example data for clustering
+x <- rbind(
+ matrix(rnorm(100, mean=0, sd = 0.3), ncol = 2), # c1
+ matrix(rnorm(100, mean = 1, sd = 0.3), ncol = 2), # c2
+ matrix(c(rnorm(50, mean = 1, sd = 0.3), # c3
+ rnorm(50, mean = 0, sd = 0.3)), ncol = 2))
+colnames(x) <- c("x", "y")
+
+# Step 2. Plot the data without clustering
+plot(x)
+
+# Step 3. Generate colors for known clusters
+# (just so we can compare to hclust results)
+col <- as.factor( rep(c("c1","c2","c3"), each=50) )
+plot(x, col=col)
+```
+
+Q. Use the dist(), hclust(), plot() and cutree()
+ functions to return 2 and 3 clusters
+Q. How does this compare to your known 'col' groups?
+
+```{r}
+# First we need to calculate point (dis)similarity
+# as the Euclidean distance between observations
+dist_matrix <- dist(x)
+# The hclust() function returns a hierarchical
+# clustering model
+hc <- hclust(d = dist_matrix)
+# the print method is not so useful here
+hc 
+```
+
+```{r}
+plot(hc)
+abline(h=2.5, col="red")
+grp2 <- cutree(hc, h=2.5)
+abline(h=2, col="green")
+grp3 <- cutree(hc, h=2)
+plot(x, col=col)
+```
+
+# Principal component analysis (PCA)
+
+```{r}
+# You can also download this file from the class website!
+mydata <- read.csv("https://tinyurl.com/expression-CSV",
+ row.names=1)
+head(mydata)
+```
+
+NOTE: prcomp() expects the samples to be rows and
+genes to be columns so we need to first transpose the
+matrix with the t() function!
+
+```{r}
+## lets do PCA
+# pca <- prcomp(t(mydata), scale=TRUE) 
+# Take the transpose as 
+head(t(mydata))
+```
+
+```{r}
+## lets do PCA
+pca <- prcomp(t(mydata), scale=TRUE) 
+summary(pca)
+```
+
+Make our first PCA plot
+
+```{r}
+dim(pca$x)
+plot(pca$x[,1], pca$x[,2], xlab = "PC1", ylab = "PC2")
+```
+
+```{r}
+## Precent variance is often more informative to look at
+pca.var <- pca$sdev^2
+pca.var.per <- round(pca.var/sum(pca.var)*100, 1) 
+
+barplot(pca.var.per, main="Scree Plot",
+ xlab="Principal Component", ylab="Percent Variation")
+
+# pca.var.per <- round(pca.var/sum(pca.var)*100, 1) 
+```
+
+Make our PCA plot nice
+
+```{r}
+## A vector of colors for wt and ko samples
+colvec <- as.factor( substr( colnames(mydata), 1, 2) )
+
+plot(pca$x[,1], pca$x[,2], col=colvec, pch=16,
+ xlab=paste0("PC1 (", pca.var.per[1], "%)"),
+ ylab=paste0("PC2 (", pca.var.per[2], "%)")) 
+```
+
+Hands on exercise
+
+```{r}
+x <- read.csv("UK_foods (1).csv", row.names = 1)
+dim(x)
+```
+
+How many rows how many columns?
+
+```{r}
+nrow(x)
+ncol(x)
+dim(x)
+```
+
+```{r}
+pairs(x, col=rainbow(10), pch=16)
+```
+
+## PCA to the rescue!
+```{r}
+# Use the prcomp() PCA function
+
+pca <- prcomp( t(x) )
+summary(pca)
+```
+
+Make my PCA plot
+```{r}
+# Plot PC1 vs PC2
+
+plot(pca$x[,1], pca$x[,2], xlab="PC1", ylab="PC2", xlim=c(-270,500))
+text(pca$x[,1], pca$x[,2], labels=colnames(x), col = c("orange", "red", "blue", "darkgreen"))
+```
+
+```{r}
+## Lets focus on PC1 as it accounts for > 90% of variance 
+par(mar=c(10, 3, 0.35, 0))
+barplot( pca$rotation[,1], las=2 )
+```
+
