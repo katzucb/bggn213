@@ -1,0 +1,135 @@
+---
+title: "Class 6 R Functions"
+author: "Lydia Hernandez"
+date: "1/25/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## File reading (again!)
+
+Here we try to use **read.table()** and friends to input some example data into R
+
+Lets insert a code chunk.
+
+```{r}
+file1 <- "https://bioboot.github.io/bggn213_S18/class-material/test1.txt"
+data1 <- read.csv(file1, header = TRUE)
+data1
+```
+
+
+```{r}
+file2 <- "https://bioboot.github.io/bggn213_S18/class-material/test2.txt"
+data2 <- read.table(file2, header = TRUE, sep = "$")
+data2
+```
+
+```{r}
+file3 <- ("https://bioboot.github.io/bggn213_S18/class-material/test3.txt")
+data3 <- read.table(file3)
+data3
+```
+
+
+## R Functions
+
+My first function
+
+```{r}
+add <- function(x, y=1) {
+ # Sum the input x and y
+ x + y
+}
+```
+
+Let's use the **add()** function
+```{r}
+add(1)
+```
+
+```{r}
+add(1, 5)
+```
+
+```{r}
+add( c(1,2,3,4))
+```
+
+```{r}
+add( c(1,2,3,4), 4)
+```
+
+```{r}
+#add(1,2,2)
+```
+
+```{r}
+#add(x=1, y="b")
+```
+
+# Our 2nd function
+
+```{r}
+rescale <- function(x) {
+ rng <-range(x)
+ (x - rng[1]) / (rng[2] - rng[1])
+}
+```
+
+```{r}
+rescale(1:10)
+```
+
+```{r}
+# How would you get your function to work here?
+rescale( c(1,2,NA,3,10) )
+```
+
+```{r}
+x <- c(1,2,NA,3,10) 
+rng <-range(x)
+rng
+#
+```
+
+```{r}
+rescale2 <- function(x) {
+ rng <-range(x, na.rm=TRUE)
+ (x - rng[1]) / (rng[2] - rng[1])
+}
+```
+
+```{r}
+rescale2( c(1,2,NA,3,10) )
+```
+
+```{r}
+rescale3 <- function(x, na.rm=TRUE, plot=FALSE) {
+ if(na.rm) {
+ rng <-range(x, na.rm=na.rm)
+ } else {
+ rng <-range(x)
+ }
+ print("Hello")
+ answer <- (x - rng[1]) / (rng[2] - rng[1])
+ print("is it me you are looking for?")
+ if(plot) {
+   plot(answer, typ="b", lwd=4)
+   print("please don't ever sing again!")
+ }
+ print("I can see it in ...")
+}
+```
+```{r}
+rescale3(1:10)
+```
+
+```{r}
+rescale3(1:10, plot=TRUE)
+rescale3(1:10, plot=FALSE)
+```
+
