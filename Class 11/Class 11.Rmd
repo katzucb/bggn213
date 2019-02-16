@@ -1,0 +1,109 @@
+---
+title: "Class 11: Structural Bioinformatics 1"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The PDB Database
+
+Let's examine the PDB database composition
+
+```{r}
+stats <- read.csv("Data Export Summary.csv", row.names = 1)
+stats
+```
+
+Q1. Percentage of structures solved by x-ray and electron microscopy
+
+```{r}
+pre.by.method <- stats$Total/sum(stats$Total) * 100
+names(pre.by.method) <- rownames(stats)
+pre.by.method
+```
+
+```{r}
+round( sum(stats$Proteins)/sum(stats$Total) * 100, 2)
+```
+
+
+```{r}
+tmp <- data.frame(stringsAsFactors=FALSE,
+   Experimental.Method = c("X-Ray", "Other", "NMR", "Multi Method",
+                           "Electron Microscopy", "Total"),
+              Proteins = c(124770, 250, 10988, 127, 2057, 138192),
+         Nucleic.Acids = c(1993, 4, 1273, 5, 31, 3306),
+    ProteinNA.Complex = c(6451, 6, 257, 2, 723, 7439),
+                 Other = c(10, 13, 8, 1, 0, 32),
+                 Total = c(133224, 273, 12526, 135, 2811, 148969)
+)
+
+```
+
+
+```{r}
+library("bio3d")
+```
+
+
+```{r}
+pdb <- read.pdb("1hsg")
+pdb
+```
+
+
+Computing connectivity from coordinates...
+
+
+Extract the ligand (i.e. drug) and write out to a separate file.
+
+```{r}
+# Select all ligand atoms (return their indices)
+inds <- atom.select(pdb, "ligand")
+inds
+```
+
+```{r}
+#inds$atom
+pdb$atom[inds$atom, ]
+```
+
+```{r}
+ligand.pdb <- trim.pdb(pdb, inds)
+ligand.pdb
+```
+
+```{r}
+write.pdb(ligand.pdb, file = "ligand.pdb")
+```
+
+
+Extract the protein only portion of this PDB structure and write it out to a new PDB file.
+
+```{r}
+# Select all ligand atoms (return their indices)
+proteininds <- atom.select(pdb, "protein")
+proteininds
+```
+
+```{r}
+pdb <- read.pdb("1HEL")
+
+# Normal Mode Analysis
+modes <- nma(pdb)
+plot(modes)
+```
+
+
+
+
+
+
+
+
+
+
+
+
