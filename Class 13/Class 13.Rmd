@@ -1,0 +1,101 @@
+---
+title: "Class 13: Genome Bioinformatics 1"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## What proportion of the Mexican Ancestry in Los Angeles sample population (MXL)
+are homozygous for the asthma associated SNP (G|G)? 
+
+I obtained this input from:http://uswest.ensembl.org/Homo_sapiens/Variation/Sample?db=core;r=17:39895045-39895146;v=rs8067378;vdb=variation;vf=362656008;sample=mxl#373531_tablePanel
+
+```{r}
+mxl <- read.csv("373531-SampleGenotypes-Homo_sapiens_Variation_Sample_rs8067378.csv")
+
+head(mxl)
+```
+
+```{r}
+table(mxl$Genotype..forward.strand.)
+```
+
+
+```{r}
+table(mxl$Genotype..forward.strand.) / nrow(mxl) * 100
+```
+
+## FASTQ Quality scores
+
+```{r}
+#install.packages("seqinr")
+#install.packages("gtools")
+library(seqinr)
+library(gtools)
+chars <- s2c("DDDDCDEDCDDDDBBDDDCC@")
+chars
+phred <- asc( chars ) - 33
+phred 
+```
+
+## Genotype based expression levels
+```{r}
+expr <- read.table("rs8067378_ENSG00000172057.6.txt")
+```
+
+```{r}
+table(expr$geno)
+```
+
+```{r}
+inds.gg <- expr$geno == "G/G"
+summary(expr[inds.gg, "exp"])
+
+```
+
+```{r}
+inds.ag <- expr$geno == "A/G"
+summary(expr[inds.ag, "exp"])
+
+```
+
+```{r}
+inds.aa <- expr$geno == "A/A"
+summary(expr[inds.aa, "exp"])
+
+```
+
+```{r}
+boxplot(exp ~ geno, data=expr, notch=TRUE)
+```
+
+```{r}
+# Boxplot with the data shown
+#install.packages("ggplot2")
+library(ggplot2)
+ggplot(expr, aes(geno, exp, fill=geno)) + 
+  geom_boxplot(notch=TRUE, outlier.shape = NA) + 
+  geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
